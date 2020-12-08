@@ -7,7 +7,14 @@ const bootcamps = require('./routes/bootcamps');
 //load env vars
 dotenv.config({ path: './config/config.env' });
 
+const logger = (req, res, next) => {
+  console.log(`${req.method} ${req.protocol}://${req.get('host')}${req.originalUrl}`);
+  next();
+};
+
 const app = express();
+
+app.use(logger);
 
 //Mount routers
 app.use('/api/v1/bootcamps', bootcamps);
