@@ -12,7 +12,9 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^5.11.5",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^7.15.0",
