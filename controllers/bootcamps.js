@@ -47,17 +47,31 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
   //Pagination
   const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10);
+  const limit = parseInt(req.query.limit, 10) || 1;
   const skip = (page - 1) * limit;
-
-  const endIndex = page * limit;
-  const total = Bootcamp.countDocuments();
   query = query.skip(skip).limit(limit);
 
   //Executing query
   const bootCamps = await query;
 
-  res.status(200).json({ success: true, count: bootCamps.length, data: bootCamps });
+  //showing Pagination result & additonal information
+  const endIndex = page * limit;
+  const total = await Bootcamp.countDocuments();
+  const pagination = {};
+  if (endIndex < total) {
+    pagination.next = {
+      page: page + 1,
+      limit,
+    };
+  }
+  if (skip > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit,
+    };
+  }
+
+  res.status(200).json({ success: true, count: bootCamps.length, pagination, data: bootCamps });
 });
 
 //@desc     get single bootcamp
