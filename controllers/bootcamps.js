@@ -9,11 +9,43 @@ const geocoder = require('../utils/geocoder');
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
   //Filtering
   let query;
-  let queryStr = JSON.stringify(req.query);
+
+  //Copy req.query as I thing we don't want to edit in req.query object itself as we will deal with it's params when we need like in if statements select filtering and sorting
+  const reqQuery = { ...req.query };
+
+  //Fields to execute because when we send /?select=name request , select here is treated
+  //as an actual field in database to match by filtering so we want to remove it and continue
+  const removeFields = ['select', 'sort'];
+
+  //Loop over removeFields and delete them from reqQuery
+  removeFields.forEach((param) => delete reqQuery[param]);
+
+  //Create query string
+  let queryStr = JSON.stringify(reqQuery);
+
+  //Create operators ($gt, $gte, etc)
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
-  console.log(queryStr);
+
+  //Finding resource
   query = Bootcamp.find(JSON.parse(queryStr));
 
+  //Select Fields
+  if (req.query.select) {
+    //mongoose handles it by spaces not commas
+    const fields = req.query.select.split(',').join(' ');
+    query = query.select(fields);
+  }
+
+  //Sorting
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
+  } else {
+    //Default sorting
+    query = query.sort('-createdAt');
+  }
+
+  //Executing query
   const bootCamps = await query;
 
   res.status(200).json({ success: true, count: bootCamps.length, data: bootCamps });
