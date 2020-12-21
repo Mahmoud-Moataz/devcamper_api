@@ -15,7 +15,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
   //Fields to execute because when we send /?select=name request , select here is treated
   //as an actual field in database to match by filtering so we want to remove it and continue
-  const removeFields = ['select', 'sort'];
+  const removeFields = ['select', 'sort', 'page', 'limit'];
 
   //Loop over removeFields and delete them from reqQuery
   removeFields.forEach((param) => delete reqQuery[param]);
@@ -44,6 +44,15 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     //Default sorting
     query = query.sort('-createdAt');
   }
+
+  //Pagination
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10);
+  const skip = (page - 1) * limit;
+
+  const endIndex = page * limit;
+  const total = Bootcamp.countDocuments();
+  query = query.skip(skip).limit(limit);
 
   //Executing query
   const bootCamps = await query;
