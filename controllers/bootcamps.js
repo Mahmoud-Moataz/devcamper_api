@@ -120,10 +120,9 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
   }
 
   // we replace const bootcamp = await Bootcamp.findById(req.params.id) with find first then deleteOne to triggre pre('deleteOne') middleware by the way we could say
-  //const bootcamp = await Bootcamp.deleteOne({_id:req.params.id}); but I prefered to do this like Brad Trav. course
-  // putting await here won't chanege anything as we don't wait result from deleting
-  //when we use findByIdAndDelete we want reseult to check bootcamp if it's existing in db so we awaiting it
-  bootcamp.deleteOne();
+  //const bootcamp = await Bootcamp.deleteOne({_id:req.params.id}); but I prefered to do this like Brad Traversy course.
+
+  await bootcamp.deleteOne();
 
   res.status(200).json({ success: true, data: {} });
 });
