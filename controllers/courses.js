@@ -8,24 +8,17 @@ const ErrorResponse = require('../utils/errorResponse');
 //@route    GET /api/v1/bootcamps/:bootcampId/courses
 //@access   public
 exports.getCourses = asyncHandler(async (req, res, next) => {
-  let query;
-
+  //get courses of specific bootcamp so we response with data without pagination, select or stuff like that as we don't need to do this as it is small data
   if (req.params.bootcampId) {
-    query = Course.find({ bootcamp: req.params.bootcampId });
-  } else {
-    query = Course.find().populate({
-      path: 'bootcamp',
-      select: 'name description',
+    const courses = await Course.find({ bootcamp: req.params.bootcampId });
+
+    return res.status(200).json({
+      success: true,
+      count: courses.length,
+      data: courses,
     });
   }
-
-  const courses = await query;
-
-  res.status(200).json({
-    success: true,
-    count: courses.length,
-    data: courses,
-  });
+  res.status(200).json(res.advancedResults);
 });
 
 //@desc     get single course

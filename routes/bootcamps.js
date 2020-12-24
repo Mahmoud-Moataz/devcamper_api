@@ -12,6 +12,10 @@ const {
 //Include other resources routers
 const courseRouter = require('./courses');
 
+//advancedResults middleware
+const advancedResults = require('../middleware/advancedResults');
+const Bootcamp = require('../models/Bootcamp');
+
 const router = express.Router();
 
 //re-route into other resource routers
@@ -23,6 +27,6 @@ router.route('/:id/photo').put(bootcampPhotoUpload);
 
 router.route('/:id').get(getBootcamp).put(updateBootcamp).delete(deleteBootcamp);
 
-router.route('/').get(getBootcamps).post(createBootcamp);
+router.route('/').get(advancedResults(Bootcamp, 'courses'), getBootcamps).post(createBootcamp);
 
 module.exports = router;
