@@ -9,11 +9,16 @@ const {
 
 //advancedResults middleware
 const advancedResults = require('../middleware/advancedResults');
+const { protect, authorize } = require('../middleware/auth');
 const Course = require('../models/Course');
 
 const router = express.Router({ mergeParams: true });
 
-router.route('/:id').get(getCourse).put(updateCourse).delete(deleteCourse);
+router
+  .route('/:id')
+  .get(getCourse)
+  .put(protect, authorize('admin', 'publisher'), updateCourse)
+  .delete(protect, authorize('admin', 'publisher'), deleteCourse);
 
 router
   .route('/')
@@ -24,6 +29,6 @@ router
     }),
     getCourses
   )
-  .post(addCourse);
+  .post(protect, authorize('admin', 'publisher'), addCourse);
 
 module.exports = router;

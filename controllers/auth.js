@@ -14,9 +14,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     role,
   });
 
-  const token = user.getSignedJWTToken();
-
-  res.status(200).json({ success: true, token });
+  sendTokenResponse(user, 200, res);
 });
 
 //@desc     Login user
@@ -60,3 +58,13 @@ const sendTokenResponse = (user, statusCode, res) => {
   //Send token with cookie in response
   res.status(statusCode).cookie('token', token, options).json({ success: true, token });
 };
+
+//@desc     Get current logged in user
+//@route    GET /api/v1/auth/me
+//@access   private
+exports.getMe = asyncHandler(async (req, res, next) => {
+  //req.user from protect middleware
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({ success: true, data: user });
+});

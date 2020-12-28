@@ -66,7 +66,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
       limit,
     };
   }
-  //to pass value from middleware to next one we pass it on 'res' object as next middleware has access to its properties (show getBootcamps() method controller)
+  //to pass value from middleware to next one we pass it on 'res' or 'req' object as next middleware has access to its properties (show getBootcamps() method controller)
   res.advancedResults = { success: true, count: results.length, pagination, data: results };
   next();
 };
