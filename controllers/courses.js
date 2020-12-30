@@ -45,18 +45,26 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 //@route    POST /api/v1/bootcamps/:bootcampId/courses
 //@access   private
 exports.addCourse = asyncHandler(async (req, res, next) => {
-  //as we can create course through  /api/v1/courses but must send bootcampId with body
-  if (req.params.bootcampId) {
-    req.body.bootcamp = req.params.bootcampId;
+  req.body.user = req.user.id;
 
-    const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+  req.body.bootcamp = req.params.bootcampId;
 
-    if (!bootcamp) {
-      return next(
-        new ErrorResponse(`Bootcamp not found with id of ${req.params.bootcampId} `, 404)
-      );
-    }
+  const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+
+  if (!bootcamp) {
+    return next(new ErrorResponse(`Bootcamp not found with id of ${req.params.bootcampId} `, 404));
   }
+
+  //Make sure user is bootcamp owner
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `user '${req.user.id}'is not authorized to add a course to a bootcamp ${bootcamp._id}`,
+        401
+      )
+    );
+  }
+
   const course = await Course.create(req.body);
 
   res.status(200).json({
@@ -75,6 +83,16 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Course not found with id of ${req.params.id}`, 404));
   }
 
+  //Make sure user is course owner
+  if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `user '${req.user.id}'is not authorized to update this course ${course._id}`,
+        401
+      )
+    );
+  }
+
   res.status(200).json({
     success: true,
     data: course,
@@ -87,6 +105,17 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
   if (!course) {
     return next(new ErrorResponse(`Course not found with id of ${req.params.id}`, 404));
   }
+
+  //Make sure user is course owner
+  if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `user '${req.user.id}'is not authorized to delete this course ${course._id}`,
+        401
+      )
+    );
+  }
+
   //we can use remove instead of deleteOne :show difference in bootcamp cascade delete
   await course.remove();
   res.status(200).json({
