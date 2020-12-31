@@ -67,7 +67,7 @@ userSchema.methods.getResetPasswordToken = function () {
 
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
-  //updateOne() doesn't save in database too, so we can't use it
+  //'updateOne()' doesn't save in database too, so we can't use it
   // this.updateOne({
   //   resetPasswordToken: crypto.createHash('sha256').update(resetToken).digest('hex'),
   //   resetPasswordExpire: Date.now() + 10 * 60 * 1000,
